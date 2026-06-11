@@ -1,45 +1,45 @@
-# Plataforma ECICIENCIA - Diseño Arquitectónico
+# ECICIENCIA Platform - Architectural Design
 
-## 1. Diagrama de Arquitectura (Microservicios + API Gateway)
+## 1. Architecture Diagram (Microservices + API Gateway)
 
-A continuación, se presenta la arquitectura propuesta usando Mermaid. Se optó por un patrón de microservicios conectados a través de un API Gateway.
+Below is the proposed architecture using Mermaid. A microservices pattern connected through an API Gateway was chosen.
 
 ```mermaid
 graph TD
-    Client[Cliente Web / Móvil] --> Gateway(API Gateway)
+    Client[Web / Mobile Client] --> Gateway(API Gateway)
     Gateway --> AssistantSvc[AssistantService]
     Gateway --> AgendaSvc[AgendaService]
     Gateway --> WorkshopSvc[WorkshopService]
 
-    AssistantSvc -.-> DB_A[(Asistentes DB)]
+    AssistantSvc -.-> DB_A[(Assistants DB)]
     AgendaSvc -.-> DB_AG[(Agenda DB)]
-    WorkshopSvc -.-> DB_W[(Talleres DB)]
+    WorkshopSvc -.-> DB_W[(Workshops DB)]
 ```
 
-## 2. Microservicios y Responsabilidades
+## 2. Microservices and Responsibilities
 
-| Servicio | Responsabilidad |
+| Service | Responsibility |
 |----------|----------------|
-| **AssistantService** | Gestionar el registro y datos personales de los asistentes al evento ECICIENCIA. |
-| **AgendaService** | Administrar la lista de actividades generales, permitiendo consultar charlas y eventos por franja horaria. |
-| **WorkshopService** | Controlar la reserva de cupos específicos para los talleres interactivos y monitorear el aforo en tiempo real. |
+| **AssistantService** | Manage registration and personal data of attendees to the ECICIENCIA event. |
+| **AgendaService** | Manage the general list of activities, allowing users to query talks and events by time slot. |
+| **WorkshopService** | Control the reservation of specific spots for interactive workshops and monitor capacity in real-time. |
 
-## 3. Descripción del Gateway
+## 3. Gateway Description
 
-El **API Gateway** centraliza las peticiones de las aplicaciones front-end (web y móvil).
-En lugar de que el cliente deba conectarse a tres servicios en diferentes puertos (y manejar la autenticación/ruteo en el cliente), el Gateway expone una interfaz REST o GraphQL unificada hacia el exterior, y se comunica internamente con los microservicios usando gRPC.
+The **API Gateway** centralizes requests from front-end applications (web and mobile).
+Instead of the client having to connect to three services on different ports (and handling authentication/routing on the client side), the Gateway exposes a unified REST or GraphQL interface to the outside world, and communicates internally with the microservices using gRPC.
 
-## 4. Justificación (No a un servicio monolítico)
+## 4. Justification (Why not a monolithic service?)
 
-Si construyéramos ECICIENCIA como un monolito:
-1. **Escalabilidad:** Si el día del evento hay miles de usuarios consultando la agenda, el monolito completo debe escalarse, incluso si casi nadie se está registrando como asistente nuevo. Con microservicios, podemos escalar únicamente el `AgendaService`.
-2. **Resiliencia:** Si la reserva de talleres colapsa por concurrencia o una falla de código, en un monolito todo el sistema se caería (no se podría ver ni la agenda). En microservicios, el sistema se degrada graciosamente (la gente sigue viendo la agenda aunque no pueda reservar talleres).
-3. **Despliegue independiente:** Equipos diferentes pueden mejorar el módulo de "Talleres" y desplegarlo sin afectar ni detener el "Registro de asistentes".
+If we built ECICIENCIA as a monolith:
+1. **Scalability:** If thousands of users are querying the agenda on the day of the event, the entire monolith must be scaled, even if almost no one is registering as a new attendee. With microservices, we can scale only the `AgendaService`.
+2. **Resilience:** If workshop reservation crashes due to concurrency or a code failure, in a monolith the entire system would go down (the agenda couldn't be viewed either). In microservices, the system degrades gracefully (people can still see the agenda even if they can't reserve workshops).
+3. **Independent Deployment:** Different teams can improve the "Workshops" module and deploy it without affecting or stopping the "Attendee Registration".
 
-## 5. Reflexión Final sobre la Evolución de la Arquitectura
+## 5. Final Reflection on Architecture Evolution
 
-A través de este taller, he evidenciado cómo un simple modelo de red (Sockets TCP) requiere un esfuerzo gigantesco para definir la semántica, control de errores y estructura de la información ("MOVIE:1"). HTTP alivianó parte de la estructura mediante verbos (GET, POST) y rutas estandarizadas, pero seguía sin ofrecer una invocación limpia de métodos.
+Through this workshop, I have seen how a simple network model (TCP Sockets) requires a massive effort to define semantics, error control, and data structure ("MOVIE:1"). HTTP alleviated part of the structure through verbs (GET, POST) and standardized routes, but still didn't offer clean method invocation.
 
-Con Java RMI entendí el poder de RPC: invocar funciones en un servidor como si estuvieran localmente en memoria. Sin embargo, su atadura extrema a Java restringe la interoperabilidad moderna. Es allí donde brilla gRPC, ofreciendo un contrato agnóstico al lenguaje (el `.proto`), tipado fuerte y alta velocidad de serialización mediante Protocol Buffers.
+With Java RMI, I understood the power of RPC: invoking functions on a server as if they were locally in memory. However, its extreme tie to Java restricts modern interoperability. That's where gRPC shines, offering a language-agnostic contract (the `.proto`), strong typing, and high serialization speed through Protocol Buffers.
 
-Finalmente, al avanzar de gRPC hacia Microservicios y un API Gateway, se comprende que la arquitectura no solo se trata de "cómo viajan los datos", sino de cómo se organizan lógicamente los dominios (Bounded Contexts). Separar el sistema de bienestar en `Medical`, `Gym`, `Recreation` permite escalar cada componente por separado, mientras el Gateway oculta esta complejidad operativa del usuario final. Las arquitecturas distribuidas no son una moda, sino un conjunto de herramientas esenciales para resolver la complejidad natural de sistemas que evolucionan.
+Finally, moving from gRPC to Microservices and an API Gateway, it's understood that architecture is not just about "how data travels," but how domains (Bounded Contexts) are logically organized. Separating the wellness system into `Medical`, `Gym`, `Recreation` allows each component to scale separately, while the Gateway hides this operational complexity from the end user. Distributed architectures are not a trend, but a set of essential tools for solving the natural complexity of evolving systems.

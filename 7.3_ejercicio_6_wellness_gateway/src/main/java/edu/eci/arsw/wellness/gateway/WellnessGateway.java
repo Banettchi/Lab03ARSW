@@ -56,6 +56,15 @@ public class WellnessGateway {
             System.out.println(" - " + a.getServiceType() + " at " + a.getDate() + " [" + a.getStatus() + "]");
         }
 
+        // 5. Consultar especialidades medicas
+        System.out.println("\n[Consultando Especialidades Medicas]");
+        EmptyMedicalRequest medReq = EmptyMedicalRequest.newBuilder().build();
+        SpecialtyList specialties = medicalStub.getSpecialties(medReq);
+        System.out.println("Especialidades disponibles: " + specialties.getSpecialtiesCount());
+        for (Specialty s : specialties.getSpecialtiesList()) {
+            System.out.println(" - " + s.getName() + ": " + s.getDescription());
+        }
+
         // Cierre de canales
         appointmentChannel.shutdown();
         medicalChannel.shutdown();
