@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "edu.eci.arsw.eciciencia";
+option java_outer_classname = "EcicienciaProto";
+
+// ---------------------------------------------
+// Assistant Service
+// ---------------------------------------------
+service AssistantService {
+  rpc RegisterAssistant (RegisterRequest) returns (AssistantResponse);
+}
+
+message RegisterRequest {
+  string fullName = 1;
+  string email = 2;
+  string institution = 3;
+}
+
+message AssistantResponse {
+  int32 id = 1;
+  string status = 2; // e.g. "REGISTERED"
+}
+
+// ---------------------------------------------
+// Agenda Service
+// ---------------------------------------------
+service AgendaService {
+  rpc GetActivitiesByTimeSlot (TimeSlotRequest) returns (ActivityList);
+}
+
+message TimeSlotRequest {
+  string startTime = 1;
+  string endTime = 2;
+}
+
+message Activity {
+  int32 id = 1;
+  string title = 2;
+  string speaker = 3;
+  string location = 4;
+}
+
+message ActivityList {
+  repeated Activity activities = 1;
+}
+
+// ---------------------------------------------
+// Workshop Service
+// ---------------------------------------------
+service WorkshopService {
+  rpc ReserveWorkshop (ReservationRequest) returns (ReservationResponse);
+  rpc CheckAvailability (WorkshopRequest) returns (AvailabilityResponse);
+}
+
+message ReservationRequest {
+  int32 assistantId = 1;
+  int32 workshopId = 2;
+}
+
+message ReservationResponse {
+  bool success = 1;
+  string message = 2; // e.g., "Cupo confirmado", "Taller lleno"
+}
+
+message WorkshopRequest {
+  int32 workshopId = 1;
+}
+
+message AvailabilityResponse {
+  int32 totalCapacity = 1;
+  int32 currentOccupancy = 2;
+  bool isFull = 3;
+}

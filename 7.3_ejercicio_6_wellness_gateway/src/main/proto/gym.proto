@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "edu.eci.arsw.wellness.gym";
+option java_outer_classname = "GymProto";
+
+service GymService {
+  rpc ReserveGymSession (GymReserveRequest) returns (GymReserveResponse);
+}
+
+message GymReserveRequest {
+  int32 studentId = 1;
+  string timeSlot = 2;
+}
+
+message GymReserveResponse {
+  bool success = 1;
+  string message = 2;
+}

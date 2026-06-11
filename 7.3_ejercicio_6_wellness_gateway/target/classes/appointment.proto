@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "edu.eci.arsw.wellness.appointment";
+option java_outer_classname = "AppointmentProto";
+
+service AppointmentService {
+  rpc RequestAppointment (AppointmentRequest) returns (AppointmentResponse);
+  rpc CancelAppointment (CancelRequest) returns (CancelResponse);
+  rpc GetAppointments (StudentRequest) returns (AppointmentList);
+}
+
+message AppointmentRequest {
+  int32 studentId = 1;
+  string studentName = 2;
+  string institutionalEmail = 3;
+  string serviceType = 4; // MEDICINE, PSYCHOLOGY, DENTISTRY
+  string date = 5;
+}
+
+message AppointmentResponse {
+  int32 id = 1;
+  string status = 2; // REQUESTED
+}
+
+message CancelRequest {
+  int32 appointmentId = 1;
+}
+
+message CancelResponse {
+  bool success = 1;
+}
+
+message StudentRequest {
+  int32 studentId = 1;
+}
+
+message Appointment {
+  int32 id = 1;
+  int32 studentId = 2;
+  string serviceType = 3;
+  string date = 4;
+  string status = 5;
+}
+
+message AppointmentList {
+  repeated Appointment appointments = 1;
+}
